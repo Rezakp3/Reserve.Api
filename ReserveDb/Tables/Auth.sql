@@ -1,0 +1,11 @@
+﻿
+CREATE TABLE [dbo].[Auth](
+	[Id] [uniqueidentifier] NOT NULL,
+	[AccessToken] [nvarchar](300) NOT NULL,
+	[RefreshToken] [nvarchar](300) NOT NULL,
+ [RefreshTokenExpirationDate] DATETIME NULL, 
+    CONSTRAINT [PK_Auth] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
