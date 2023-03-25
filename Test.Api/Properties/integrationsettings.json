@@ -1,0 +1,11 @@
+{
+  "ConnectionStrings": {
+    "ReserveDb": "Data Source=.;Initial Catalog=ReserveDb;TrustServerCertificate=True;Integrated Security=True"
+  },
+  "Users": {
+    "reza": {
+      "UserName": "reza",
+      "Password": "123"
+    }
+  }
+}

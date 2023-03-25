@@ -2,102 +2,90 @@
 using Dapper;
 using Dapper.FastCrud;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace Infrastructure.Repositories.ReservesR
 {
     public class ReservesRepository : IReservesRepository
     {
-        private readonly string connectionString;
-        public ReservesRepository(IConfiguration configuration)
-            => connectionString = configuration.GetConnectionString("ReserveDb");
+        private readonly IDbConnection db;
+        public ReservesRepository(IDbConnection db)
+            => this.db = db;
 
         public async Task<bool> Delete(Guid id)
         {
-            using (var db = new SqlConnection(connectionString))
+            try
             {
-                try
-                {
-                    return await db.ExecuteAsync("delete Reserves where Id = @Id", new { Id = id }) > 0;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                await db.DeleteAsync(new Reserves { Id = id });
+                return true;
+                //return await db.ExecuteAsync("delete Reserves where Id = @Id", new { Id = id }) > 0;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
         public async Task<List<Reserves>> GetAll()
         {
-            using (var db = new SqlConnection(connectionString))
-            {
-                var res = await db.QueryAsync<Reserves>("select * from Reserves");
-                return res.ToList();
-            }
+            var res = await db.QueryAsync<Reserves>("select * from Reserves");
+            return res.ToList();
         }
 
         public async Task<Reserves> GetById(Guid id)
         {
-            using (var db = new SqlConnection(connectionString))
-            {
-                var res = await db.QueryFirstOrDefaultAsync<Reserves>("select * from Reserves where Id = @Id", new { Id = id });
-                return res;
-            }
+            var res = await db.QueryFirstOrDefaultAsync<Reserves>("select * from Reserves where Id = @Id", new { Id = id });
+            return res;
         }
 
         public async Task<bool> Insert(Reserves entity)
         {
-            using (var db = new SqlConnection(connectionString))
+            try
             {
-                try
-                {
-                    entity.CreateAt = DateTime.Now;
-                    return await db.ExecuteAsync("insert into Reserves (CreateAt, ReserveDate, ReserverId, LocationId, Price) values (@CreateAt, @ReserveDate, @ReserverId, @LocationId, @Price)", entity) > 0;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                entity.CreateAt = DateTime.Now.Date;
+                entity.ReserveDate = entity.ReserveDate.Date;
+                await db.InsertAsync(entity);
+                return true;
+                //return await db.ExecuteAsync("insert into Reserves (CreateAt, ReserveDate, ReserverId, LocationId, Price) values (@CreateAt, @ReserveDate, @ReserverId, @LocationId, @Price)", entity) > 0;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
         public async Task<bool> Update(Reserves entity)
         {
-            using (var db = new SqlConnection(connectionString))
+            try
             {
-                try
-                {
-                    return await db.ExecuteAsync("update Reserves set ReserveDate = @ReserveDate, LocationId = @LocationId, Price = @Price where Id = @Id", entity) > 0;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                entity.ReserveDate = entity.ReserveDate.Date;
+                await db.UpdateAsync(entity);
+                return true;
+                //return await db.ExecuteAsync("update Reserves set ReserveDate = @ReserveDate, LocationId = @LocationId, Price = @Price where Id = @Id", entity) > 0;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
         public async Task<bool> ValidForInsert(DateTime reserveDate, Guid locationId)
         {
-            using (var con = new SqlConnection(connectionString))
-            {
-                var res = await con.ExecuteScalarAsync<int>
-                    ("select count(Id) from Reserves where ReserveDate = @ReserveDate and LocationId = @LocationId",
-                    new { ReserveDate = reserveDate, LocationId = locationId });
+            var res = await db.ExecuteScalarAsync<int>
+                ("select count(Id) from Reserves where ReserveDate = @ReserveDate and LocationId = @LocationId",
+                new { ReserveDate = reserveDate.Date, LocationId = locationId });
 
-                return res == 0;
-            }
+            return res == 0;
         }
 
         public async Task<bool> ValidForUpdate(Guid id, DateTime reserveDate, Guid locationId)
         {
-            using (var con = new SqlConnection(connectionString))
-            {
-                var res = await con.ExecuteScalarAsync<int>
-                    ("select count(Id) from Reserves where ReserveDate=@ReserveDate and LocationId = @LocationId and Id <> @Id",
-                    new { ReserveDate = reserveDate, LocationId = locationId, Id = id });
+            var res = await db.ExecuteScalarAsync<int>
+                ("select count(Id) from Reserves where ReserveDate=@ReserveDate and LocationId = @LocationId and Id <> @Id",
+                new { ReserveDate = reserveDate.Date, LocationId = locationId, Id = id });
 
-                return res == 0;
-            }
+            return res == 0;
         }
     }
 }

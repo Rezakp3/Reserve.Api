@@ -1,9 +1,9 @@
 ﻿
 CREATE TABLE [dbo].[Auth](
 	[Id] [uniqueidentifier] NOT NULL,
-	[AccessToken] [nvarchar](300) NOT NULL,
-	[RefreshToken] [nvarchar](300) NOT NULL,
- [RefreshTokenExpirationDate] DATETIME NULL, 
+	[AccessToken] [nvarchar](500) NOT NULL,
+	[RefreshToken] [nvarchar](500) NOT NULL,
+ [RefreshTokenExpirationDate] DATE NULL, 
     CONSTRAINT [PK_Auth] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

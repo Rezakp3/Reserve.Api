@@ -22,7 +22,7 @@ namespace Reserve.Api.Controllers
             this.mediator = mediator;
         }
 
-        [HttpGet("v1/{userId}")]
+        [HttpGet("{userId}")]
         public async Task<ActionResult<Result>> ActiveUser(Guid userId)
         {
             var changeActivityRequest = new ChangeUserActivityRequest()
@@ -35,7 +35,7 @@ namespace Reserve.Api.Controllers
             return res.IsSuccess ? Ok(res) : BadRequest(res);
         }
 
-        [HttpGet("/{userId}")]
+        [HttpGet("{userId}")]
         public async Task<ActionResult<Result>> DeactiveUser(Guid userId)
         {
             var changeActivityRequest = new ChangeUserActivityRequest()
@@ -55,7 +55,7 @@ namespace Reserve.Api.Controllers
             return res.IsSuccess ? Ok(res) : BadRequest(res);
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<ActionResult<Result>> Delete(DeleteUserRequest request)
         {
             var res = await mediator.Send(request);
@@ -70,9 +70,9 @@ namespace Reserve.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<User>>> GetById(GetUserByIdRequest request)
+        public async Task<ActionResult<Result<User>>> GetById(Guid id)
         {
-            var res = await mediator.Send(request);
+            var res = await mediator.Send(new GetUserByIdRequest { Id = id});
             return res.IsSuccess ? Ok(res) : BadRequest(res);
         }
 

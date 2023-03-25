@@ -20,7 +20,7 @@ namespace Domain.Helpers
             })
                 .AddJwtBearer(options =>
                 {
-                    var secretKey = Encoding.UTF8.GetBytes(configuration["JwtSecret"]);
+                    var secretKey = Encoding.UTF8.GetBytes(configuration["AuthenticationOptions:SecretKey"]);
 
                     var validationParameters = new TokenValidationParameters
                     {
@@ -43,7 +43,11 @@ namespace Domain.Helpers
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
                     options.TokenValidationParameters = validationParameters;
-
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context => Task.CompletedTask,
+                        OnTokenValidated = context => Task.CompletedTask,
+                    };
                 });
         }
 
@@ -52,7 +56,7 @@ namespace Domain.Helpers
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Daya-APIs", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "class-APIs", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,

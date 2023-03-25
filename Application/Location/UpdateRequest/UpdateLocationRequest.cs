@@ -10,9 +10,7 @@ namespace Application.Location.UpdateRequest
     {
         public Guid Id{ get; set; }
         public LocationType LocationType { get; set; }
-        [MaxLength(50)]
         public string Title { get; set; }
-        [MaxLength(200)]
         public string Adres { get; set; }
         public decimal Longitude { get; set; }
         public decimal Latitude { get; set; }

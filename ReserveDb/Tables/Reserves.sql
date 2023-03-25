@@ -1,6 +1,6 @@
 ﻿
 CREATE TABLE [dbo].[Reserves](
-	[Id] [uniqueidentifier] NOT NULL,
+	[Id] [uniqueidentifier] NOT NULL DEFAULT newId(),
 	[CreateAt] [datetime] NULL,
 	[ReserveDate] [date] NULL,
 	[ReserverId] [uniqueidentifier] NOT NULL,

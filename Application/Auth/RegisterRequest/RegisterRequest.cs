@@ -3,19 +3,14 @@ using Domain.Helpers;
 using FluentResults;
 using Infrastructure.UnitOfWork;
 using MediatR;
-using System.ComponentModel.DataAnnotations;
 
 namespace Application.Auth.RegisterRequest
 {
     public class RegisterRequest : IRequest<Result<Core.Entities.Auth>>
     {
-        [MaxLength(15)]
         public string UserName { get; set; }
-        [MaxLength(100)]
         public string Password { get; set; }
-        [MaxLength(20)]
         public string FName { get; set; }
-        [MaxLength(30)]
         public string LName { get; set; }
 
         public class RegisterRequestHandler : IRequestHandler<RegisterRequest, Result<Core.Entities.Auth>>

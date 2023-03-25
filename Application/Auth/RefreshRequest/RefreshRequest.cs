@@ -1,19 +1,14 @@
 ﻿using FluentResults;
 using Infrastructure.UnitOfWork;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Auth.RefreshRequest
 {
-    public class RefreshRequest : IRequest<Result<DateTime>>
+    public class RefreshRequest : IRequest<Result<Core.Entities.Auth>>
     {
-        public Guid id { get; set; }
+        public string RefreshToken { get; set; }
 
-        public class RefreshRequestHandler : IRequestHandler<RefreshRequest, Result<DateTime>>
+        public class RefreshRequestHandler : IRequestHandler<RefreshRequest, Result<Core.Entities.Auth>>
         {
             private readonly IUnitOfWork _unitOfWork;
 
@@ -22,11 +17,11 @@ namespace Application.Auth.RefreshRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<DateTime>> Handle(RefreshRequest request, CancellationToken cancellationToken)
+            public async Task<Result<Core.Entities.Auth>> Handle(RefreshRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<DateTime>();
+                var result = new Result<Core.Entities.Auth>();
 
-                var auth = await _unitOfWork.Auth.GetById(request.id);
+                Core.Entities.Auth auth = await _unitOfWork.Auth.GetByRefreshToken(request.RefreshToken);
                 var expDate = DateTime.Now.AddDays(30);
                 auth.RefreshTokenExpirationDate = expDate;
 
@@ -37,7 +32,7 @@ namespace Application.Auth.RefreshRequest
                 }
 
                 result.WithSuccess("your refresh token expiration time incresed");
-                result.WithValue(expDate);
+                result.WithValue(auth);
                 return result;
             }
         }

@@ -1,10 +1,10 @@
 ﻿
 CREATE TABLE [dbo].[Locations](
-	[Id] [uniqueidentifier] NOT NULL,
+	[Id] [uniqueidentifier] NOT NULL DEFAULT newId(),
 	[LocationType] [smallint] NULL,
 	[Title] [nvarchar](50) NULL,
 	[Adres] [nvarchar](200) NULL,
-	[CreateAt] [datetime] NULL,
+	[CreateAt] DATETIME NULL,
 	[CreatorId] [uniqueidentifier] NOT NULL,
 	[Longitude] [decimal](9, 6) NULL,
 	[latitude] [decimal](9, 6) NULL,

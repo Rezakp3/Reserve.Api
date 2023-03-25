@@ -1,4 +1,5 @@
-﻿using Application.Auth.LoginRequest;
+﻿using Application.Auth.GetRequests;
+using Application.Auth.LoginRequest;
 using Application.Auth.RefreshRequest;
 using Application.Auth.RegisterRequest;
 using Core.Entities;
@@ -36,10 +37,17 @@ namespace Reserve.Api.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Result<DateTime>>> Refresh(RefreshRequest registerRequest)
+        public async Task<ActionResult<Result<Auth>>> Refresh(RefreshRequest refreshRequest)
         {
-            var res = await mediator.Send(registerRequest);
+            var res = await mediator.Send(refreshRequest);
             return res.IsSuccess? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Result<List<Auth>>>> GetAll()
+        {
+            var res = await mediator.Send(new GetAllAuthRequest());
+            return res.IsSuccess ? Ok(res) : NotFound();
         }
     }
 }

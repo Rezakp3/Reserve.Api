@@ -12,6 +12,7 @@ namespace Reserve.Api.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class ReserveController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -28,7 +29,7 @@ namespace Reserve.Api.Controllers
             return res.IsSuccess ? Ok(res) : BadRequest(res);
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<ActionResult<Result>> Delete(ReserveDeleteRequest request)
         {
             var res = await mediator.Send(request);

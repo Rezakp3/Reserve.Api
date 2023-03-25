@@ -11,5 +11,6 @@ namespace Infrastructure.Repositories.UserR
         public Task<bool> ChangePassword(Guid id, string passwordHash);
         public Task<bool> ChangeActivity(Guid id, bool activity);
         public Task<Guid> GetIdByUserName(string userName);
+        public bool GetUserActive(Guid id);
     }
 }
