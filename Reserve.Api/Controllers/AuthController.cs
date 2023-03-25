@@ -22,17 +22,20 @@ namespace Reserve.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<Auth>>> Login(LoginRequest loginRequest)
+        public async Task<Result<Auth>> Login(LoginRequest loginRequest)
         {
             var res = await mediator.Send(loginRequest);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return res;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<Auth>>> Register(RegisterRequest registerRequest)
+        [ProducesResponseType(type: typeof(Result<Auth>), statusCode: StatusCodes.Status200OK)]
+        [ProducesResponseType(type: typeof(Result<Auth>), statusCode: StatusCodes.Status400BadRequest)]
+        public async Task<Result<Auth>> Register(RegisterRequest registerRequest)
         {
             var res = await mediator.Send(registerRequest);
-            return res.IsSuccess? Ok(res) : BadRequest(res);
+
+            return res;
         }
 
         [HttpPost]

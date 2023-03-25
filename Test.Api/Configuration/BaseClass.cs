@@ -4,10 +4,7 @@ using Test.Api.Model.ConfigModel;
 using FluentResults;
 using Core.Entities;
 using System.Net.Http.Headers;
-using System.Net.Http.Formatting;
-using Shouldly;
 using System.Text;
-using Test.Api.Model.Objects;
 
 namespace Test.Api.Configuration
 {
@@ -42,7 +39,6 @@ namespace Test.Api.Configuration
                 password = _configuration[$"Users:{name}:Password"]
             };
 
-            var controllerName = "https://localhost:7104/Api/Auth/Login";
 
             var myContent = JsonConvert.SerializeObject(loginParam);
             var buffer = Encoding.UTF8.GetBytes(myContent);
@@ -50,9 +46,9 @@ namespace Test.Api.Configuration
             byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
 
-            var response = await _client.PostAsync("/api/Auth/Login", byteContent);
+            var response = _client.PostAsync("/api/Auth/Login", byteContent);
             //response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result<Auth>>();
+            var result = await response.Result.Content.ReadAsAsync<Result<Auth>>();
             
 
             //var res = _httpRequest.HttpPostAsync(loginParam, controllerName, header).Result;
