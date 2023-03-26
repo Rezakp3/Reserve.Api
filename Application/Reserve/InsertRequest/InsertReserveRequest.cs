@@ -1,7 +1,9 @@
-﻿using Core.Entities;
-using FluentResults;
+﻿using Core.Dtos;
+using Core.Entities;
+
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Application.Reserve.InsertRequest
 {
-    public class InsertReserveRequest : IRequest<Result>
+    public class InsertReserveRequest : IRequest<StandardResult>
     {
         public DateTime ReserveDate { get; set; }
         public Guid ReserverId { get; set; }
         public Guid LocationId { get; set; }
         public int Price { get; set; }
 
-        public class InsertRequestHandler : IRequestHandler<InsertReserveRequest, Result>
+        public class InsertRequestHandler : IRequestHandler<InsertReserveRequest, StandardResult>
         {
             private readonly IUnitOfWork _unitOfWork;
 
@@ -26,29 +28,37 @@ namespace Application.Reserve.InsertRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(InsertReserveRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult> Handle(InsertReserveRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result();
+                var result = new StandardResult();
 
                 if (!await _unitOfWork.Reserves.ValidForInsert(request.ReserveDate, request.LocationId))
                 {
-                    result.WithError("some one reserved this location in this date before");
+                    result.Message = "some one reserved this location in this date before";
+                    result.StatusCode = StatusCodes.Status406NotAcceptable;
+                    result.Success = false;
                     return result;
                 }
 
                 if (!await _unitOfWork.Reserves.Insert(new Reserves
                 {
+                    Id = Guid.NewGuid(),
                     LocationId = request.LocationId,
                     Price = request.Price,
                     ReserveDate = request.ReserveDate,
                     ReserverId = request.ReserverId
                 }))
                 {
-                    result.WithError("oops we have a problem here.");
+                    result.Message = "oops we have a problem here.";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("Location Reserved.");
+                result.Message = "Location Reserved.";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
+
                 return result;
             }
         }

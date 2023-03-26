@@ -30,14 +30,7 @@ namespace Test.Api.TestClasses.Reserve.Insert
                 Price = 60000
             };
 
-            var myContent = JsonConvert.SerializeObject(reserve);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PostAsync("/api/Reserve/Insert", byteContent);
-            response.EnsureSuccessStatusCode();
+            var response = await _client.PostAsync("/api/Reserve/Insert", CreateContent(reserve));
             var result = await response.Content.ReadAsAsync<Result>();
             result.IsSuccess.ShouldBeTrue();
         }
@@ -53,14 +46,7 @@ namespace Test.Api.TestClasses.Reserve.Insert
                 Price = 60000
             };
 
-            var myContent = JsonConvert.SerializeObject(reserve);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PostAsync("/api/Reserve/Insert", byteContent);
-            response.EnsureSuccessStatusCode();
+            var response = await _client.PostAsync("/api/Reserve/Insert", CreateContent(reserve));
             var result = await response.Content.ReadAsAsync<Result>();
             result.IsSuccess.ShouldBeTrue();
         }

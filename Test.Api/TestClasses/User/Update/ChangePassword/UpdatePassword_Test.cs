@@ -1,5 +1,7 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Entities;
 using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Exceptions;
 using Newtonsoft.Json;
 using Shouldly;
@@ -30,17 +32,10 @@ namespace Test.Api.TestClasses.User.Update.ChangePassword
                 Password = "456"
             };
 
-
-            var myContent = JsonConvert.SerializeObject(pass);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PatchAsync("/api/User/ChangePassword", byteContent);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var response = await _client.PatchAsync("/api/User/ChangePassword", CreateContent(pass));
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

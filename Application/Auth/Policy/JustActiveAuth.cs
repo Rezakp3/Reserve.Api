@@ -2,7 +2,7 @@
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Application.Auth.Policy
+namespace Application.Authentication.Policy
 {
     public record IsActiveRequirement : IAuthorizationRequirement;
     public class JustActiveAuth 

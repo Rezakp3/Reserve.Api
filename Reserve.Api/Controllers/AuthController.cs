@@ -1,9 +1,6 @@
-﻿using Application.Auth.GetRequests;
-using Application.Auth.LoginRequest;
-using Application.Auth.RefreshRequest;
-using Application.Auth.RegisterRequest;
-using Core.Entities;
-using FluentResults;
+﻿using Application.Authentication.LoginRequest;
+using Application.Authentication.RefreshRequest;
+using Application.Authentication.RegisterRequest;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,35 +19,25 @@ namespace Reserve.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<Result<Auth>> Login(LoginRequest loginRequest)
+        public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
             var res = await mediator.Send(loginRequest);
-            return res;
+            return StatusCode(res.StatusCode , res);
         }
 
         [HttpPost]
-        [ProducesResponseType(type: typeof(Result<Auth>), statusCode: StatusCodes.Status200OK)]
-        [ProducesResponseType(type: typeof(Result<Auth>), statusCode: StatusCodes.Status400BadRequest)]
-        public async Task<Result<Auth>> Register(RegisterRequest registerRequest)
+        public async Task<IActionResult> Register(RegisterRequest registerRequest)
         {
             var res = await mediator.Send(registerRequest);
-
-            return res;
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Result<Auth>>> Refresh(RefreshRequest refreshRequest)
+        public async Task<IActionResult> Refresh(RefreshRequest refreshRequest)
         {
             var res = await mediator.Send(refreshRequest);
-            return res.IsSuccess? Ok(res) : BadRequest(res);
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<Result<List<Auth>>>> GetAll()
-        {
-            var res = await mediator.Send(new GetAllAuthRequest());
-            return res.IsSuccess ? Ok(res) : NotFound();
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

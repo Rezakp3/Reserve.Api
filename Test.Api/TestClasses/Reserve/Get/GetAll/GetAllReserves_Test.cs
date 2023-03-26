@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Shouldly;
 using Test.Api.Configuration;
 
@@ -17,9 +19,10 @@ namespace Test.Api.TestClasses.Reserve.Get.GetAll
         public async Task GetAll_Return200()
         {
             var response = await _client.GetAsync("/api/Reserve/GetAll");
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result<List<Core.Entities.Reserves>>>();
-            result.IsSuccess.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult<List<Core.Entities.Reserves>>>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status302Found);
+            result.Result.ShouldBeOfType <List<Core.Entities.Reserves>>();
         }
     }
 }

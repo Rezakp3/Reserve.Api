@@ -1,12 +1,13 @@
-﻿using Core.Enums;
-using FluentResults;
+﻿using Core.Dtos;
+using Core.Enums;
+
 using Infrastructure.UnitOfWork;
 using MediatR;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Location.UpdateRequest
 {
-    public class UpdateLocationRequest : IRequest<Result>
+    public class UpdateLocationRequest : IRequest<StandardResult>
     {
         public Guid Id{ get; set; }
         public LocationType LocationType { get; set; }
@@ -15,7 +16,7 @@ namespace Application.Location.UpdateRequest
         public decimal Longitude { get; set; }
         public decimal Latitude { get; set; }
 
-        public class UpdateRequestHandler : IRequestHandler<UpdateLocationRequest, Result>
+        public class UpdateRequestHandler : IRequestHandler<UpdateLocationRequest, StandardResult>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -25,13 +26,15 @@ namespace Application.Location.UpdateRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(UpdateLocationRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult> Handle(UpdateLocationRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result();
+                var result = new StandardResult();
                 var location = await _unitOfWork.Locations.GetById(request.Id);
                 if (location is null)
                 {
-                    result.WithError("Location not found");
+                    result.Message = "Location not found";
+                    result.StatusCode = StatusCodes.Status404NotFound;
+                    result.Success = false;
                     return result;
                 }
 
@@ -43,11 +46,15 @@ namespace Application.Location.UpdateRequest
 
                 if (!await _unitOfWork.Locations.Update(location))
                 {
-                    result.WithError("oops we have a problem here");
+                    result.Message = "oops we have a problem here";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("Location information updated.");
+                result.Message = "Location information updated.";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
                 return result;
             }
         }

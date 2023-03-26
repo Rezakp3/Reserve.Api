@@ -1,12 +1,14 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Entities;
 using Core.Enums;
-using FluentResults;
+
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Location.InsertRequest
 {
-    public class InsertLocationRequest : IRequest<Result>
+    public class InsertLocationRequest : IRequest<StandardResult>
     {
         public LocationType LocationType { get; set; }
         public string Title { get; set; }
@@ -15,7 +17,7 @@ namespace Application.Location.InsertRequest
         public decimal Longitude { get; set; }
         public decimal Latitude { get; set; }
 
-        public class InsertRequestHandler : IRequestHandler<InsertLocationRequest, Result>
+        public class InsertRequestHandler : IRequestHandler<InsertLocationRequest, StandardResult>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -25,11 +27,12 @@ namespace Application.Location.InsertRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(InsertLocationRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult> Handle(InsertLocationRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result();
+                var result = new StandardResult();
                 Locations loc = new Locations()
                 {
+                    Id = Guid.NewGuid(),
                     CreateAt = DateTime.Now,
                     LocationType = request.LocationType,
                     Title = request.Title,
@@ -41,11 +44,15 @@ namespace Application.Location.InsertRequest
 
                 if (!await _unitOfWork.Locations.Insert(loc))
                 {
-                    result.WithError("oops we have a problem here.");
+                    result.Message = "oops we have a problem here.";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("Location inserted.");
+                result.Message = "Location inserted.";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
                 return result;
             }
         }

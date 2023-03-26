@@ -1,9 +1,13 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Shouldly;
 using System.Net.Http.Headers;
 using System.Text;
 using Test.Api.Configuration;
+using Test.Api.Model.ConfigModel;
 
 namespace Test.Api.TestClasses.Auth.Refresh
 {
@@ -12,25 +16,30 @@ namespace Test.Api.TestClasses.Auth.Refresh
         public RefreshToken_Test(ApiWebApplicationFactory<Program> apiWeb)
             :base(apiWeb)
         {
-            Login("reza");
+
         }
 
         [Fact]
         public async Task GetRefreshToken()
         {
-            var refreshToken = new { RefreshToken = Guid.Parse("117f322a-8aee-478c-83c0-568a0d82fbc0") };
-            var myContent = JsonConvert.SerializeObject(refreshToken);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            LoginParam loginParam = new LoginParam()
+            {
+                userName = "reza",
+                password = "123"
+            };
 
+            var loginResponse = _client.PostAsync("/api/Auth/Login", CreateContent(loginParam));
+            var loginResult = await loginResponse.Result.Content.ReadAsAsync<StandardResult<AuthDto>>();
+            var token = loginResult.Result.AccessToken;
 
-            var response = await _client.PostAsync("/api/Auth/Refresh", byteContent);
-            //response.EnsureSuccessStatusCode();
-            var r = response.StatusCode;
-            var result = await response.Content.ReadAsAsync<Result<Core.Entities.Auth>>();
-            result.IsSuccess.ShouldBeTrue();
-            result.ShouldNotBeNull();
+            Authorization(token);
+
+            var refreshToken = new { loginResult.Result.RefreshToken };
+
+            var response = await _client.PostAsync("/api/Auth/Refresh", CreateContent(refreshToken));
+            var result = await response.Content.ReadAsAsync<StandardResult<AuthDto>>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

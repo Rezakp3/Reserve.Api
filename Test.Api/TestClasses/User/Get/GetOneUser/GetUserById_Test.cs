@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Shouldly;
 using Test.Api.Configuration;
 
@@ -16,9 +18,10 @@ namespace Test.Api.TestClasses.User.Get.GetOneUser
         public async Task GetOne_ValidId_Return200()
         {
             var response = await _client.GetAsync("/api/User/GetById/0cb50386-bd92-48e6-8c99-5d983f777fbf");
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result<Core.Entities.User>>();
-            result.IsSuccess.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult<Core.Entities.User>>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status302Found);
+            result.Result.ShouldBeOfType<Core.Entities.User>();
         }
     }
 }

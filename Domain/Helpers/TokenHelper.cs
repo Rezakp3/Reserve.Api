@@ -31,7 +31,7 @@ namespace Domain.Helpers
                 Audience = _configuration["AuthenticationOptions:Audience"],
                 IssuedAt = DateTime.UtcNow,
                 NotBefore = DateTime.UtcNow,
-                Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.Now.AddDays(30),
                 SigningCredentials = signingCredentials,
                 Subject = new ClaimsIdentity(new List<Claim>
                 {

@@ -57,8 +57,8 @@ namespace Infrastructure.Repositories.LocationsR
 
         public async Task<List<Locations>> SearchAndPaging(LocationSearchDto dto)
         {
-            var res = await db.QueryAsync<Locations>("SearchAndPaging", dto, commandType: CommandType.StoredProcedure);
-            return res.ToList();
+            var res = db.Query<Locations>("SearchAndPaging", dto, commandType: CommandType.StoredProcedure).ToList();
+            return res;
         }
 
         public async Task<bool> Update(Locations entity)

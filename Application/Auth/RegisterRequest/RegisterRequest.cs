@@ -1,19 +1,20 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Entities;
 using Domain.Helpers;
-using FluentResults;
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
-namespace Application.Auth.RegisterRequest
+namespace Application.Authentication.RegisterRequest
 {
-    public class RegisterRequest : IRequest<Result<Core.Entities.Auth>>
+    public class RegisterRequest : IRequest<StandardResult<AuthDto>>
     {
         public string UserName { get; set; }
         public string Password { get; set; }
         public string FName { get; set; }
         public string LName { get; set; }
 
-        public class RegisterRequestHandler : IRequestHandler<RegisterRequest, Result<Core.Entities.Auth>>
+        public class RegisterRequestHandler : IRequestHandler<RegisterRequest, StandardResult<AuthDto>>
         {
             private readonly IUnitOfWork unitOfWork;
 
@@ -22,47 +23,54 @@ namespace Application.Auth.RegisterRequest
                 this.unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<Core.Entities.Auth>> Handle(RegisterRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<AuthDto>> Handle(RegisterRequest request, CancellationToken cancellationToken)
             {
+
+                var result = new StandardResult<AuthDto>();
+
+                if(!await unitOfWork.User.UserNameIsValidForInsert(request.UserName))
+                {
+                    result.Message = "username is taken";
+                    result.StatusCode = StatusCodes.Status406NotAcceptable;
+                    result.Success = false;
+                    return result;
+                }
+
                 var user = new Core.Entities.User
                 {
+                    Id = Guid.NewGuid(),
                     FName = request.FName,
                     LName = request.LName,
                     UserName = request.UserName,
                     PasswordHash = HashHelper.HashPassword(request.Password, ""),
-                    IsActive = true
+                    IsActive = true,
+                    RefreshToken = TokenHelper.GenerateRefreshToken(),
+                    RefreshTokenExpirationDate = DateTime.Now.AddDays(1)                
                 };
 
-                var result = new Result<Core.Entities.Auth>();
-
-                if(!await unitOfWork.User.UserNameIsValidForInsert(request.UserName))
-                {
-                    result.WithError("username is taken");
-                    return result;
-                }
+                user.AccessToken = TokenHelper.GenerateAccessToken(user);
+                
 
                 if(!await unitOfWork.User.Insert(user))
                 {
-                    result.WithError("oops we have a problem here");
+                    result.Message = "oops we have a problem here";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                var auth = new Core.Entities.Auth
+                var auth = new AuthDto
                 {
-                    Id = await unitOfWork.User.GetIdByUserName(user.UserName),
-                    AccessToken = TokenHelper.GenerateAccessToken(user),
-                    RefreshToken = TokenHelper.GenerateRefreshToken(),
-                    RefreshTokenExpirationDate = DateTime.Now.AddDays(30)
+                    Id = user.Id,
+                    AccessToken = user.AccessToken,
+                    RefreshToken = user.RefreshToken,
+                    RefreshTokenExpirationDate = user.RefreshTokenExpirationDate
                 };
 
-                if(!await unitOfWork.Auth.Insert(auth))
-                {
-                    result.WithError("oops we have a problem here");
-                    return result;
-                }
-
-                result.WithSuccess("your registration success.");
-                result.WithValue(auth);
+                result.Message = "your registration success.";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
+                result.Result = auth;
                 return result;
             }
         }

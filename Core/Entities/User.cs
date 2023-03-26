@@ -16,5 +16,8 @@ namespace Core.Entities
         public string FName { get; set; }
         [MaxLength(30)]
         public string LName { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpirationDate { get; set; }
     }
 }

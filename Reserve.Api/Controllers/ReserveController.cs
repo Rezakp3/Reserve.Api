@@ -2,8 +2,6 @@
 using Application.Reserve.GetRequests;
 using Application.Reserve.InsertRequest;
 using Application.Reserve.UpdateRequest;
-using Core.Entities;
-using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,38 +21,38 @@ namespace Reserve.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result>> Insert(InsertReserveRequest request)
+        public async Task<IActionResult> Insert(InsertReserveRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result>> Delete(ReserveDeleteRequest request)
+        public async Task<IActionResult> Delete(Guid reserveId)
         {
-            var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            var res = await mediator.Send(new ReserveDeleteRequest { reserveId = reserveId});
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Result>> Update(UpdateReserveRequest request)
+        public async Task<IActionResult> Update(UpdateReserveRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<Locations>>> GetById(GetReserveByIdRequest request)
+        public async Task<IActionResult> GetById(GetReserveByIdRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<Locations>>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var res = await mediator.Send(new GetAllReservesRequest());
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

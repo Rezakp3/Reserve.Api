@@ -1,14 +1,16 @@
-﻿using FluentResults;
+﻿
+using Core.Dtos;
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Reserve.DeleteRequest
 {
-    public class ReserveDeleteRequest : IRequest<Result>
+    public class ReserveDeleteRequest : IRequest<StandardResult>
     {
         public Guid reserveId { get; set; }
 
-        public class DeleteRequestHandler : IRequestHandler<ReserveDeleteRequest, Result>
+        public class DeleteRequestHandler : IRequestHandler<ReserveDeleteRequest, StandardResult>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -18,17 +20,22 @@ namespace Application.Reserve.DeleteRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(ReserveDeleteRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult> Handle(ReserveDeleteRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result();
+                var result = new StandardResult();
 
                 if (!await _unitOfWork.Reserves.Delete(request.reserveId))
                 {
-                    result.WithError("oops we have a problem here");
+                    result.Message = "oops we have a problem here";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("Reserve deleted .");
+                result.Message = "Reserve deleted .";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
+
                 return result;
             }
         }

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Domain.Helpers;
 using Infrastructure;
 using Application;
-using Application.Auth.Policy;
+using Application.Authentication.Policy;
 using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -3,7 +3,7 @@ using Application.Location.GetRequests;
 using Application.Location.InsertRequest;
 using Application.Location.UpdateRequest;
 using Core.Entities;
-using FluentResults;
+
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,46 +23,45 @@ namespace Reserve.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result>> Insert(InsertLocationRequest request)
+        public async Task<IActionResult> Insert(InsertLocationRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result>> Delete(LocationDeleteRequest request)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            var res = await mediator.Send(new LocationDeleteRequest { id = id});
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPut]
-        public async Task<ActionResult<Result>> Update(UpdateLocationRequest request)
+        public async Task<IActionResult> Update(UpdateLocationRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Result<Locations>>> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-
             var res = await mediator.Send(new GetLocationByIdRequest { Id = id});
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<Locations>>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var res = await mediator.Send(new GetAllLocationsRequest());
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<List<Locations>>>> SearchAndPagination(SearchLocationRequest request)
+        public async Task<IActionResult> SearchAndPagination(SearchLocationRequest request)
         {
             var res = await mediator.Send(request);
-            return res.IsSuccess ? Ok(res) : BadRequest(res);
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

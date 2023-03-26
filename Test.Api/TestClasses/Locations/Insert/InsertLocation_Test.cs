@@ -1,5 +1,7 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Entities;
 using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shouldly;
 using System;
@@ -25,7 +27,7 @@ namespace Test.Api.TestClasses.Locations.Insert
         {
             var loc = new Core.Entities.Locations
             {
-                CreatorId = Guid.Parse("0cb50386-bd92-48e6-8c99-5d983f777fbf"),
+                CreatorId = Guid.Parse("ad52d995-ba99-402c-b465-d59776aa47a4"),
                 Adres = "random addres",
                 Latitude = 25,
                 Longitude = 16,
@@ -33,17 +35,10 @@ namespace Test.Api.TestClasses.Locations.Insert
                 Title = "test title"
             };
 
-
-            var myContent = JsonConvert.SerializeObject(new { location = loc});
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PostAsync("/api/Locatios/Insert", byteContent);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var response = await _client.PostAsync("/api/Location/Insert", CreateContent(loc));
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

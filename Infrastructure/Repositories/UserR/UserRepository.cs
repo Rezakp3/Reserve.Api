@@ -69,9 +69,15 @@ namespace Infrastructure.Repositories.UserR
             return res;
         }
 
-        public bool GetUserActive(Guid id)
+        public async Task<bool> GetUserActive(Guid id)
         {
-            var res = db.QueryFirstOrDefault<bool>("Select IsActive from [User] where Id = @Id", new { Id = id });
+            var res = await db.QueryFirstOrDefaultAsync<bool>("Select IsActive from [User] where Id = @Id", new { Id = id });
+            return res;
+        }
+
+        public async Task<User> GetUserByRefreshToken(string refreshToken)
+        {
+            var res = await db.QueryFirstOrDefaultAsync<User>("select * from [User] where RefreshToken = @RefreshToken", new { RefreshToken = refreshToken });
             return res;
         }
 

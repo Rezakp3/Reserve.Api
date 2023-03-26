@@ -1,25 +1,20 @@
 ﻿using Core.Dtos;
 using Core.Entities;
 using Core.Enums;
-using FluentResults;
 using Infrastructure.UnitOfWork;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Location.GetRequests
 {
-    public class SearchLocationRequest : IRequest<Result<List<Locations>>>
+    public class SearchLocationRequest : IRequest<StandardResult<List<Locations>>>
     {
         public string Title { get; set; }
-        public LocationType LocationType { get; set; }
+        public int LocationType { get; set; }
         public int pageNumber { get; set; }
         public int itemCount { get; set; }
 
-        public class SearchRequestHandler : IRequestHandler<SearchLocationRequest, Result<List<Locations>>>
+        public class SearchRequestHandler : IRequestHandler<SearchLocationRequest, StandardResult<List<Locations>>>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -29,9 +24,9 @@ namespace Application.Location.GetRequests
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<List<Locations>>> Handle(SearchLocationRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<List<Locations>>> Handle(SearchLocationRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<List<Locations>>();
+                var result = new StandardResult<List<Locations>>();
 
                 LocationSearchDto dto = new LocationSearchDto
                 {
@@ -41,8 +36,12 @@ namespace Application.Location.GetRequests
                     itemCount = request.itemCount,
                 };
 
-                result.WithSuccess("");
-                result.WithValue(await _unitOfWork.Locations.SearchAndPaging(dto));
+                var locations = await _unitOfWork.Locations.SearchAndPaging(dto);
+
+                result.Success = locations is not null;
+                result.Message = locations is not null ? "locations found" : "locations not found";
+                result.StatusCode = locations is not null ? StatusCodes.Status302Found : StatusCodes.Status404NotFound;
+                result.Result = locations;
 
                 return result;
             }

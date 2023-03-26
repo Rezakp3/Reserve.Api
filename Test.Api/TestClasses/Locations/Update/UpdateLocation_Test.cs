@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shouldly;
 using System;
@@ -24,7 +26,7 @@ namespace Test.Api.TestClasses.Locations.Update
         {
             var loc = new 
             {
-                Id = Guid.Parse("ab9a749d-331a-42e7-95bf-4cc62202e988"),
+                Id = Guid.Parse("1ce36dd3-6441-447d-a622-cf082322438d"),
                 Adres = "random addres",
                 Latitude = 25,
                 Longitude = 16,
@@ -32,17 +34,10 @@ namespace Test.Api.TestClasses.Locations.Update
                 Title = "test title"
             };
 
-
-            var myContent = JsonConvert.SerializeObject(loc);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PutAsync("/api/Locatios/Update", byteContent);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var response = await _client.PutAsync("/api/Location/Update", CreateContent(loc));
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

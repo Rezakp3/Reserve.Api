@@ -1,14 +1,17 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using Core.Entities;
+using Domain.Helpers;
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
-namespace Application.Auth.RefreshRequest
+namespace Application.Authentication.RefreshRequest
 {
-    public class RefreshRequest : IRequest<Result<Core.Entities.Auth>>
+    public class RefreshRequest : IRequest<StandardResult<AuthDto>>
     {
         public string RefreshToken { get; set; }
 
-        public class RefreshRequestHandler : IRequestHandler<RefreshRequest, Result<Core.Entities.Auth>>
+        public class RefreshRequestHandler : IRequestHandler<RefreshRequest, StandardResult<AuthDto>>
         {
             private readonly IUnitOfWork _unitOfWork;
 
@@ -17,22 +20,33 @@ namespace Application.Auth.RefreshRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<Core.Entities.Auth>> Handle(RefreshRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<AuthDto>> Handle(RefreshRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<Core.Entities.Auth>();
+                var result = new StandardResult<AuthDto>();
 
-                Core.Entities.Auth auth = await _unitOfWork.Auth.GetByRefreshToken(request.RefreshToken);
-                var expDate = DateTime.Now.AddDays(30);
-                auth.RefreshTokenExpirationDate = expDate;
+                var user = await _unitOfWork.User.GetUserByRefreshToken(request.RefreshToken);
+                user.RefreshTokenExpirationDate = DateTime.Now.AddMonths(1).Date;
+                user.RefreshToken = TokenHelper.GenerateRefreshToken();
 
-                if (!await _unitOfWork.Auth.Update(auth))
+                if (!await _unitOfWork.User.Update(user))
                 {
-                    result.WithError("oops we have a problem here");
+                    result.Message = "oops we have a problem here";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("your refresh token expiration time incresed");
-                result.WithValue(auth);
+                result.Message = "your refresh token expiration time incresed";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
+                result.Result = new AuthDto
+                {
+                    Id = user.Id,
+                    AccessToken = user.AccessToken,
+                    RefreshToken = user.RefreshToken,
+                    RefreshTokenExpirationDate = user.RefreshTokenExpirationDate
+                };
+
                 return result;
             }
         }

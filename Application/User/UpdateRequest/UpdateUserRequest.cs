@@ -1,6 +1,9 @@
-﻿using FluentResults;
+﻿
+using Core.Dtos;
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace Application.User.UpdateRequest
 {
-    public class UpdateUserRequest : IRequest<Result>
+    public class UpdateUserRequest : IRequest<StandardResult>
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }
         public string FName { get; set; }
         public string LName { get; set; }
 
-        public class UpdateRequestHandler : IRequestHandler<UpdateUserRequest, Result>
+        public class UpdateRequestHandler : IRequestHandler<UpdateUserRequest, StandardResult>
         {
             private readonly IUnitOfWork unitOfWork;
 
@@ -26,19 +29,23 @@ namespace Application.User.UpdateRequest
                 this.unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult> Handle(UpdateUserRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result();
+                var result = new StandardResult();
                 var user = await unitOfWork.User.GetById(request.Id);
                 if(user is null)
                 {
-                    result.WithError("User not found");
+                    result.Message = "User not found";
+                    result.StatusCode = StatusCodes.Status404NotFound;
+                    result.Success = false;
                     return result;
                 }
 
                 if(!await unitOfWork.User.UserNameIsValidForUpdate(request.Id , request.UserName))
                 {
-                    result.WithError("userName is not valid for Update");
+                    result.Message = "UserName is not valid for Update";
+                    result.StatusCode = StatusCodes.Status406NotAcceptable;
+                    result.Success = false;
                     return result;
                 }
 
@@ -48,11 +55,15 @@ namespace Application.User.UpdateRequest
 
                 if(!await unitOfWork.User.Update(user))
                 {
-                    result.WithError("oops we have a problem here");
+                    result.Message = "oops we have a problem here";
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    result.Success = false;
                     return result;
                 }
 
-                result.WithSuccess("user information updated.");
+                result.Message = "user information updated.";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
                 return result;
             }
         }

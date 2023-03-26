@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Shouldly;
 using Test.Api.Configuration;
 
@@ -16,9 +18,10 @@ namespace Test.Api.TestClasses.Reserve.Get.GetOneById
         public async Task GetOne_Return200()
         {
             var response = await _client.GetAsync("/api/Reserve/GetById/e7577c88-8b70-4c27-927f-f5deecddd583");
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result<Core.Entities.Reserves>>();
-            result.IsSuccess.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult<Core.Entities.Reserves>>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status302Found);
+            result.Result.ShouldBeOfType<Core.Entities.Reserves>();
         }
     }
 }

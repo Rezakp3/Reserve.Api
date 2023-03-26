@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shouldly;
 using System.Net.Http.Headers;
@@ -24,9 +26,9 @@ namespace Test.Api.TestClasses.User.Delete
             byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             var response = await _client.PostAsync("/api/User/Delete", byteContent);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

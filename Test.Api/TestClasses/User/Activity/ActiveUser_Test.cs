@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -21,9 +23,9 @@ namespace Test.Api.TestClasses.User.Activity
         public async Task ActivateUser_Return200()
         {
             var response = await _client.GetAsync("/api/User/ActiveUser/9cc36993-8b13-4c0c-b09d-fb867f52b05a");
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

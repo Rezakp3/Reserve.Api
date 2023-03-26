@@ -1,4 +1,6 @@
-﻿using FluentResults;
+﻿using Core.Dtos;
+using FluentResults;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shouldly;
 using System.Net.Http.Headers;
@@ -26,17 +28,10 @@ namespace Test.Api.TestClasses.User.Update.UpdateUser
                 LName = "test"
             };
 
-
-            var myContent = JsonConvert.SerializeObject(user);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PutAsync("/api/User/Update", byteContent);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result>();
-            result.IsSuccess.ShouldBeTrue();
+            var response = await _client.PutAsync("/api/User/Update", CreateContent(user));
+            var result = await response.Content.ReadAsAsync<StandardResult>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
         }
     }
 }

@@ -11,6 +11,8 @@ using Test.Api.Configuration;
 using Test.Api.Model.Objects;
 using Shouldly;
 using Core.Entities;
+using Core.Dtos;
+using Microsoft.AspNetCore.Http;
 
 namespace Test.Api.TestClasses.Auth.Register
 {
@@ -29,21 +31,14 @@ namespace Test.Api.TestClasses.Auth.Register
                 FName = "ye esm",
                 LName = "keramati",
                 Password = "123",
-                UserName = "rkp"
+                UserName = "ajab1"
             };
 
-            var myContent = JsonConvert.SerializeObject(user);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PostAsync("/api/Auth/Register", byteContent);
-            //response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsAsync<Result<Core.Entities.Auth>>();
-            result.IsSuccess.ShouldBeTrue();
-            result.ValueOrDefault.AccessToken.ShouldNotBeNull();
-            result.ValueOrDefault.AccessToken.ShouldNotBeEmpty();
+            var response = await _client.PostAsync("/api/Auth/Register", CreateContent(user));
+            var result = await response.Content.ReadAsAsync<StandardResult<AuthDto>>();
+            result.Success.ShouldBeTrue();
+            result.StatusCode.ShouldBe(StatusCodes.Status200OK);
+            result.Result.ShouldNotBeNull();
         }
 
         [Fact]
@@ -57,17 +52,12 @@ namespace Test.Api.TestClasses.Auth.Register
                 UserName = "reza"
             };
 
-            var myContent = JsonConvert.SerializeObject(user);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PostAsync("/api/Auth/Register", byteContent);
+            var response = await _client.PostAsync("/api/Auth/Register", CreateContent(user));
             //response.EnsureSuccessStatusCode();
             response.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-            var result = await response.Content.ReadAsAsync<Result<Core.Entities.Auth>>();
-            result.IsFailed.ShouldBeTrue();
+            var result = await response.Content.ReadAsAsync<StandardResult<AuthDto>>();
+            result.Success.ShouldBeFalse();
+            result.StatusCode.ShouldBe(StatusCodes.Status406NotAcceptable);
         }
     }
 }

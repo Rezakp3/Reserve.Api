@@ -1,13 +1,15 @@
-﻿using Core.Entities;
-using FluentResults;
+﻿using Core.Dtos;
+using Core.Entities;
+
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Location.GetRequests
 {
-    public class GetAllLocationsRequest : IRequest<Result<List<Locations>>>
+    public class GetAllLocationsRequest : IRequest<StandardResult<List<Locations>>>
     {
-        public class GetAllRequestHandler : IRequestHandler<GetAllLocationsRequest, Result<List<Locations>>>
+        public class GetAllRequestHandler : IRequestHandler<GetAllLocationsRequest, StandardResult<List<Locations>>>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -17,12 +19,15 @@ namespace Application.Location.GetRequests
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<List<Locations>>> Handle(GetAllLocationsRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<List<Locations>>> Handle(GetAllLocationsRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<List<Locations>>();
+                var result = new StandardResult<List<Locations>>();
 
-                result.WithSuccess("");
-                result.WithValue(await _unitOfWork.Locations.GetAll());
+                var locations = await _unitOfWork.Locations.GetAll();
+                result.Success = locations is not null;
+                result.Message = locations is not null ? "Locations found" : "locations not found";
+                result.StatusCode = locations is not null ? StatusCodes.Status302Found : StatusCodes.Status404NotFound;
+                result.Result = locations;
 
                 return result;
             }

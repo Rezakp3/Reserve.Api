@@ -60,7 +60,6 @@
     <Folder Include="Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\Auth.sql" />
     <Build Include="Tables\Locations.sql" />
     <Build Include="Tables\User.sql" />
     <Build Include="Tables\Reserves.sql" />

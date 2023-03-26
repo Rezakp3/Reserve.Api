@@ -1,13 +1,15 @@
-﻿using Core.Entities;
-using FluentResults;
+﻿using Core.Dtos;
+using Core.Entities;
+
 using Infrastructure.UnitOfWork;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Reserve.GetRequests
 {
-    public class GetAllReservesRequest : IRequest<Result<List<Reserves>>>
+    public class GetAllReservesRequest : IRequest<StandardResult<List<Reserves>>>
     {
-        public class GetAllRequestHandler : IRequestHandler<GetAllReservesRequest, Result<List<Reserves>>>
+        public class GetAllRequestHandler : IRequestHandler<GetAllReservesRequest, StandardResult<List<Reserves>>>
         {
 
             private readonly IUnitOfWork _unitOfWork;
@@ -17,12 +19,17 @@ namespace Application.Reserve.GetRequests
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<List<Reserves>>> Handle(GetAllReservesRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<List<Reserves>>> Handle(GetAllReservesRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<List<Reserves>>();
+                var reserves = await _unitOfWork.Reserves.GetAll();
 
-                result.WithSuccess("");
-                result.WithValue(await _unitOfWork.Reserves.GetAll());
+                var result = new StandardResult<List<Reserves>>
+                {
+                    Message = reserves is not null ? "Reserves found" : "Reserves not found",
+                    StatusCode = reserves is not null ? StatusCodes.Status302Found : StatusCodes.Status404NotFound,
+                    Success = reserves is not null,
+                    Result = reserves
+                };
 
                 return result;
             }

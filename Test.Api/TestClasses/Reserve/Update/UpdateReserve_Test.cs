@@ -26,14 +26,7 @@ namespace Test.Api.TestClasses.Reserve.Update
                 Price = 70000
             };
 
-
-            var myContent = JsonConvert.SerializeObject(reserve);
-            var buffer = Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-
-            var response = await _client.PutAsync("/api/Reserve/Update", byteContent);
+            var response = await _client.PutAsync("/api/Reserve/Update", CreateContent(reserve));
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadAsAsync<Result>();
             result.IsSuccess.ShouldBeTrue();

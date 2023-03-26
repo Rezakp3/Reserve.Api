@@ -1,16 +1,18 @@
 ﻿using MediatR;
-using FluentResults;
 using Infrastructure.UnitOfWork;
 using Domain.Helpers;
+using Core.Dtos;
+using Core.Entities;
+using Microsoft.AspNetCore.Http;
 
-namespace Application.Auth.LoginRequest
+namespace Application.Authentication.LoginRequest
 {
-    public class LoginRequest : IRequest<Result<Core.Entities.Auth>>
+    public class LoginRequest : IRequest<StandardResult<AuthDto>>
     {
         public string userName { get; set; }
         public string password { get; set; }
 
-        public class LoginRequestHandler : IRequestHandler<LoginRequest, Result<Core.Entities.Auth>>
+        public class LoginRequestHandler : IRequestHandler<LoginRequest, StandardResult<AuthDto>>
         {
             private readonly IUnitOfWork _unitOfWork;
 
@@ -19,13 +21,15 @@ namespace Application.Auth.LoginRequest
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<Core.Entities.Auth>> Handle(LoginRequest request, CancellationToken cancellationToken)
+            public async Task<StandardResult<AuthDto>> Handle(LoginRequest request, CancellationToken cancellationToken)
             {
-                var result = new Result<Core.Entities.Auth>();
+                var result = new StandardResult<AuthDto>();
                 var user = await _unitOfWork.User.GetUserByUserName(request.userName);
                 if (user is null)
                 {
-                    result.WithError("username not found.");
+                    result.Message = "username not found.";
+                    result.StatusCode = StatusCodes.Status404NotFound;
+                    result.Success = false;
                     return result;
                 }
 
@@ -33,36 +37,37 @@ namespace Application.Auth.LoginRequest
 
                 if (user.PasswordHash != passwordHash)
                 {
-                    result.WithError("username or password is incorrect.");
+                    result.Message = "username or password is incorrect.";
+                    result.StatusCode = StatusCodes.Status401Unauthorized;
+                    result.Success = false;
                     return result;
                 }
 
-                var auth = new Core.Entities.Auth();
+                user.AccessToken = TokenHelper.GenerateAccessToken(user);
+                user.RefreshToken = TokenHelper.GenerateRefreshToken();
+                user.RefreshTokenExpirationDate = DateTime.Now.AddMonths(1).Date;
 
-                auth.Id = user.Id;
-                auth.AccessToken = TokenHelper.GenerateAccessToken(user);
-                auth.RefreshToken = TokenHelper.GenerateRefreshToken();
-                auth.RefreshTokenExpirationDate = DateTime.Now.AddDays(30);
-
-                if (await _unitOfWork.Auth.GetById(user.Id) is not null)
+                if(!await _unitOfWork.User.Update(user))
                 {
-                    if (!await _unitOfWork.Auth.Update(auth))
-                    {
-                        result.WithError("oops we have a problem here.");
-                        return result;
-                    }
-                }
-                else
-                {
-                    if (!await _unitOfWork.Auth.Insert(auth))
-                    {
-                        result.WithError("oops we have a problem here.");
-                        return result;
-                    }
+                    result.Message = "oops we have a problem here";
+                    result.Success = false;
+                    result.StatusCode = StatusCodes.Status500InternalServerError;
+                    return result;
                 }
 
-                result.WithSuccess("Login successfull ...");
-                result.WithValue(auth);
+                var auth = new AuthDto
+                {
+                    Id = user.Id,
+                    AccessToken = user.AccessToken,
+                    RefreshToken = user.RefreshToken,
+                    RefreshTokenExpirationDate = user.RefreshTokenExpirationDate
+                };
+
+
+                result.Message = "Login successfull ...";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Success = true;
+                result.Result = auth;
                 return result;
             }
 

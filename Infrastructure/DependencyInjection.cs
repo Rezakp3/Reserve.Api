@@ -1,5 +1,4 @@
-﻿using Infrastructure.Repositories.AuthR;
-using Infrastructure.Repositories.LocationsR;
+﻿using Infrastructure.Repositories.LocationsR;
 using Infrastructure.Repositories.ReservesR;
 using Infrastructure.Repositories.UserR;
 using Infrastructure.UnitOfWork;
@@ -14,7 +13,6 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration conn)
         {
-            services.AddTransient<IAuthRepository, AuthRepository>();
             services.AddTransient<ILocationsRepository, LocationsRepository>();
             services.AddTransient<IReservesRepository, ReservesRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
