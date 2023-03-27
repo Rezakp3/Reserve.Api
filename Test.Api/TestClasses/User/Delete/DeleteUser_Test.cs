@@ -20,7 +20,7 @@ namespace Test.Api.TestClasses.User.Delete
         [Fact]
         public async Task Delete_ValidIdPass_Return200()
         {
-            var myContent = JsonConvert.SerializeObject(new { id = Guid.Parse("4cd3180f-9e14-4ab9-a781-441d58262864") });
+            var myContent = JsonConvert.SerializeObject(new { id = Guid.Parse("03cc13df-779f-43a2-813c-b98713b428b9") });
             var buffer = Encoding.UTF8.GetBytes(myContent);
             var byteContent = new ByteArrayContent(buffer);
             byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");

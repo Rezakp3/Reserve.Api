@@ -17,7 +17,7 @@ namespace Test.Api.TestClasses.User.Activity
         [Fact]
         public async Task DeactiveUser_Return200()
         {
-            var response = await _client.GetAsync("/api/User/DeactiveUser/9cc36993-8b13-4c0c-b09d-fb867f52b05a");
+            var response = await _client.GetAsync("/api/User/DeactiveUser/03cc13df-779f-43a2-813c-b98713b428b9");
             var result = await response.Content.ReadAsAsync<StandardResult>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status200OK);

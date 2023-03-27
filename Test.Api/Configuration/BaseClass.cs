@@ -19,7 +19,7 @@ namespace Test.Api.Configuration
         {
             if (_httpRequest == null)
                 _httpRequest = new HttpRequest();
-            _client = factory.CreateClient();
+            _client = factory.CreateDefaultClient();
 
 
             var projectDir = Directory.GetCurrentDirectory();

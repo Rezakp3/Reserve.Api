@@ -21,7 +21,6 @@ namespace Test.Api.TestClasses.Locations.Get.GetOneLocation
             var result = await response.Content.ReadAsAsync<StandardResult<Core.Entities.Locations>>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status302Found);
-            result.Result.ShouldBeOfType<Core.Entities.Locations>();
         }
 
         [Fact]

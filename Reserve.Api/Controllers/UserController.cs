@@ -66,7 +66,7 @@ namespace Reserve.Api.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var res = await mediator.Send(new GetUserByIdRequest { Id = id});

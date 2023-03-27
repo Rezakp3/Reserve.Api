@@ -28,8 +28,8 @@ namespace Test.Api.TestClasses.User.Update.ChangePassword
         {
             var pass = new
             {
-                Id = Guid.Parse("4cd3180f-9e14-4ab9-a781-441d58262864"),
-                Password = "456"
+                Id = Guid.Parse("ad52d995-ba99-402c-b465-d59776aa47a4"),
+                Password = "123"
             };
 
             var response = await _client.PatchAsync("/api/User/ChangePassword", CreateContent(pass));

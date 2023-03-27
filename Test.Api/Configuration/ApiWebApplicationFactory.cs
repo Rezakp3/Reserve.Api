@@ -19,6 +19,7 @@ namespace Test.Api.Configuration
             // Is be called after the `ConfigureServices` from the Startup
             // which allows you to overwrite the DI with mocked instances
             //// use integrationsettings json file for test:
+            
             var projectDir = Directory.GetCurrentDirectory();
             var configPath = Path.Combine(projectDir, "../../../Properties/integrationsettings.json");
             builder.ConfigureAppConfiguration((context, config) =>

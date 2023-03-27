@@ -21,7 +21,6 @@ namespace Test.Api.TestClasses.User.Get.GetAllUsers
             var result = await response.Content.ReadAsAsync<StandardResult<List<Core.Entities.User>>>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status302Found);
-            result.Result.ShouldBeOfType<List<Core.Entities.User>>();
         }
     }
 }

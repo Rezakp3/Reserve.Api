@@ -20,9 +20,9 @@ namespace Test.Api.TestClasses.Reserve.Update
         {
             var reserve = new
             {
-                Id = Guid.Parse(""),
+                Id = Guid.Parse("b28aa75a-58ae-4561-8a0d-20546424f8bc"),
                 ReserveDate = DateTime.Now.AddDays(6),
-                LocationId = Guid.Parse(""),
+                LocationId = Guid.Parse("1ce36dd3-6441-447d-a622-cf082322438d"),
                 Price = 70000
             };
 

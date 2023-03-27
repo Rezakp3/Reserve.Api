@@ -31,7 +31,7 @@ namespace Test.Api.TestClasses.Auth.Register
                 FName = "ye esm",
                 LName = "keramati",
                 Password = "123",
-                UserName = "ajab1"
+                UserName = "ajab12"
             };
 
             var response = await _client.PostAsync("/api/Auth/Register", CreateContent(user));

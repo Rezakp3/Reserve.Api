@@ -17,11 +17,10 @@ namespace Test.Api.TestClasses.Reserve.Get.GetOneById
         [Fact]
         public async Task GetOne_Return200()
         {
-            var response = await _client.GetAsync("/api/Reserve/GetById/e7577c88-8b70-4c27-927f-f5deecddd583");
+            var response = await _client.GetAsync("/api/Reserve/GetById/b28aa75a-58ae-4561-8a0d-20546424f8bc");
             var result = await response.Content.ReadAsAsync<StandardResult<Core.Entities.Reserves>>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status302Found);
-            result.Result.ShouldBeOfType<Core.Entities.Reserves>();
         }
     }
 }

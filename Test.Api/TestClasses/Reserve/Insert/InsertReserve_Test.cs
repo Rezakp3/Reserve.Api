@@ -25,8 +25,8 @@ namespace Test.Api.TestClasses.Reserve.Insert
             var reserve = new
             {
                 ReserveDate = DateTime.Now.AddDays(10),
-                ReserverId = Guid.Parse("0cb50386-bd92-48e6-8c99-5d983f777fbf"),
-                LocationId = Guid.Parse("ab9a749d-331a-42e7-95bf-4cc62202e988"),
+                ReserverId = Guid.Parse("ad52d995-ba99-402c-b465-d59776aa47a4"),
+                LocationId = Guid.Parse("533a8fec-fbbb-4dea-8809-bc8b11174d1c"),
                 Price = 60000
             };
 

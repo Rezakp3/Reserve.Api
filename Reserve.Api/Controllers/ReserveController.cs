@@ -30,7 +30,7 @@ namespace Reserve.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid reserveId)
         {
-            var res = await mediator.Send(new ReserveDeleteRequest { reserveId = reserveId});
+            var res = await mediator.Send(new ReserveDeleteRequest { reserveId = reserveId });
             return StatusCode(res.StatusCode, res);
         }
 
@@ -41,10 +41,10 @@ namespace Reserve.Api.Controllers
             return StatusCode(res.StatusCode, res);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetById(GetReserveByIdRequest request)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var res = await mediator.Send(request);
+            var res = await mediator.Send(new GetReserveByIdRequest { Id = id});
             return StatusCode(res.StatusCode, res);
         }
 

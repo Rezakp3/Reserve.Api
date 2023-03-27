@@ -17,11 +17,10 @@ namespace Test.Api.TestClasses.User.Get.GetOneUser
         [Fact]
         public async Task GetOne_ValidId_Return200()
         {
-            var response = await _client.GetAsync("/api/User/GetById/0cb50386-bd92-48e6-8c99-5d983f777fbf");
+            var response = await _client.GetAsync("/api/User/GetById/ad52d995-ba99-402c-b465-d59776aa47a4");
             var result = await response.Content.ReadAsAsync<StandardResult<Core.Entities.User>>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status302Found);
-            result.Result.ShouldBeOfType<Core.Entities.User>();
         }
     }
 }

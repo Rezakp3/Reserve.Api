@@ -54,7 +54,8 @@ namespace Reserve.Api.Controllers
         public async Task<IActionResult> GetAll()
         {
             var res = await mediator.Send(new GetAllLocationsRequest());
-            return StatusCode(res.StatusCode, res);
+            var s = StatusCode(res.StatusCode, res);
+            return s;
         }
 
         [HttpPost]

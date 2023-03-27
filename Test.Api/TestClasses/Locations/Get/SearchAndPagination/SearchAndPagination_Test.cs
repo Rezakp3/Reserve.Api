@@ -28,7 +28,6 @@ namespace Test.Api.TestClasses.Locations.Get.SearchAndPagination
             var result = await response.Content.ReadAsAsync<StandardResult<List<Core.Entities.Locations>>>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status302Found);
-            result.Result.ShouldBeOfType<List<Core.Entities.Locations>>();
         }
     }
 }

@@ -22,13 +22,13 @@ namespace Test.Api.TestClasses.User.Update.UpdateUser
         {
             var user = new
             {
-                Id = Guid.Parse("4cd3180f-9e14-4ab9-a781-441d58262864"),
-                UserName = "test",
+                Id = Guid.Parse("ad52d995-ba99-402c-b465-d59776aa47a4"),
+                UserName = "reza",
                 FName = "test",
                 LName = "test"
             };
 
-            var response = await _client.PutAsync("/api/User/Update", CreateContent(user));
+            var response = await _client.PostAsync("/api/User/Update", CreateContent(user));
             var result = await response.Content.ReadAsAsync<StandardResult>();
             result.Success.ShouldBeTrue();
             result.StatusCode.ShouldBe(StatusCodes.Status200OK);
